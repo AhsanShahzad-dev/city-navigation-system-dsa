@@ -19,9 +19,11 @@ import { useGraphStore } from '@/store/useGraphStore';
 import { useAlgorithmStore } from '@/store/useAlgorithmStore';
 import { IntersectionNode } from './IntersectionNode';
 import { RoadEdge } from './RoadEdge';
+import { NodeContextMenu } from './NodeContextMenu';
+import { NodeInfoPanel } from '../panels/NodeInfoPanel';
 import { useTheme } from 'next-themes';
 import { Maximize2, Crosshair, ZoomIn, ZoomOut } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const nodeTypes: NodeTypes = { intersection: IntersectionNode as any };
 const edgeTypes: EdgeTypes = { road: RoadEdge as any };
@@ -217,6 +219,20 @@ function Flow() {
   const { nodes, edges, onNodesChange, onEdgesChange, onConnect, presentationMode } = useGraphStore();
   const { fitView } = useReactFlow();
 
+  // Context Menu State
+  const [contextMenu, setContextMenu] = useState<{ id: string; top: number; left: number } | null>(null);
+
+  const onNodeContextMenu = useCallback((event: React.MouseEvent, node: any) => {
+    event.preventDefault();
+    setContextMenu({
+      id: node.id,
+      top: event.clientY,
+      left: event.clientX,
+    });
+  }, []);
+
+  const onPaneClick = useCallback(() => setContextMenu(null), []);
+
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -233,29 +249,32 @@ function Flow() {
   const isDark = resolvedTheme === 'dark';
 
   return (
-    <ReactFlow
-      nodes={nodes}
-      edges={edges}
-      onNodesChange={onNodesChange}
-      onEdgesChange={onEdgesChange}
-      onConnect={onConnect}
-      nodeTypes={nodeTypes}
-      edgeTypes={edgeTypes}
-      fitView
-      fitViewOptions={{ padding: 0.15 }}
-      proOptions={{ hideAttribution: true }}
-      minZoom={0.3}
-      maxZoom={4}
-      panOnDrag
-      zoomOnScroll
-      zoomOnDoubleClick={false}
-      onDoubleClick={(e) => {
-        // Double-click on background → fit view (center on graph)
-        fitView({ duration: 500, padding: 0.15 });
-      }}
-      defaultEdgeOptions={{ type: 'road' }}
-      className="!bg-transparent"
-    >
+    <>
+      <ReactFlow
+        nodes={nodes}
+        edges={edges}
+        onNodesChange={onNodesChange}
+        onEdgesChange={onEdgesChange}
+        onConnect={onConnect}
+        onNodeContextMenu={onNodeContextMenu}
+        onPaneClick={onPaneClick}
+        nodeTypes={nodeTypes}
+        edgeTypes={edgeTypes}
+        fitView
+        fitViewOptions={{ padding: 0.15 }}
+        proOptions={{ hideAttribution: true }}
+        minZoom={0.3}
+        maxZoom={4}
+        panOnDrag
+        zoomOnScroll
+        zoomOnDoubleClick={false}
+        onDoubleClick={(e) => {
+          // Double-click on background → fit view (center on graph)
+          fitView({ duration: 500, padding: 0.15 });
+        }}
+        defaultEdgeOptions={{ type: 'road' }}
+        className="!bg-transparent"
+      >
       {/* Google-Maps-style background */}
       <Background
         color={isDark ? '#1e293b' : '#e2e8f0'}
@@ -285,9 +304,25 @@ function Flow() {
         </div>
       </div>
 
+      {/* Node Info Panel */}
+      <NodeInfoPanel />
+
+      {/* Context Menu */}
+      <AnimatePresence>
+        {contextMenu && (
+          <NodeContextMenu
+            nodeId={contextMenu.id}
+            top={contextMenu.top}
+            left={contextMenu.left}
+            onClose={() => setContextMenu(null)}
+          />
+        )}
+      </AnimatePresence>
+
       {/* Custom zoom controls */}
       <MapControls />
     </ReactFlow>
+    </>
   );
 }
 

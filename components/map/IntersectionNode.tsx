@@ -40,10 +40,10 @@ export const IntersectionNode = memo(function IntersectionNode({ id, data, selec
     glowColor = 'shadow-[0_0_12px_4px_rgba(251,146,60,0.4)]';
     dotColor = 'bg-orange-400';
   } else if (selected) {
-    ringColor = 'ring-indigo-500';
-    bgColor = 'bg-indigo-50 dark:bg-indigo-900/40';
-    glowColor = 'shadow-[0_0_16px_4px_rgba(99,102,241,0.4)]';
-    dotColor = 'bg-indigo-500';
+    ringColor = 'ring-blue-500';
+    bgColor = 'bg-blue-100 dark:bg-blue-900/60';
+    glowColor = 'shadow-[0_0_24px_8px_rgba(59,130,246,0.6)]';
+    dotColor = 'bg-blue-500';
   } else if (hovered) {
     ringColor = 'ring-slate-400';
     glowColor = 'shadow-[0_0_10px_3px_rgba(100,116,139,0.3)]';
@@ -53,7 +53,7 @@ export const IntersectionNode = memo(function IntersectionNode({ id, data, selec
 
   return (
     <div
-      className="relative nodrag"
+      className="relative"
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >

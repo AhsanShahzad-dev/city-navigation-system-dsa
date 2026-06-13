@@ -1,19 +1,25 @@
 'use client';
 
 import { memo, useState, useId } from 'react';
-import { EdgeProps, getStraightPath, BaseEdge, EdgeLabelRenderer } from '@xyflow/react';
+import { EdgeProps, getStraightPath, BaseEdge, EdgeLabelRenderer, useStore } from '@xyflow/react';
 import { RoadEdge as RoadEdgeType } from '@/store/useGraphStore';
 import { useAlgorithmStore } from '@/store/useAlgorithmStore';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 
 export const RoadEdge = memo(function RoadEdge(props: EdgeProps<RoadEdgeType>) {
-  const { id, sourceX, sourceY, targetX, targetY, data, selected } = props;
+  const { id, source, target, sourceX, sourceY, targetX, targetY, data, selected } = props;
   const { steps, currentStepIndex } = useAlgorithmStore();
   const [hovered, setHovered] = useState(false);
   const clipId = useId();
 
-  const DEBUG = true; // Temporary debug mode
+  // Read node selection state efficiently using React Flow's internal store
+  const isSourceSelected = useStore(s => s.nodeLookup.get(source)?.selected);
+  const isTargetSelected = useStore(s => s.nodeLookup.get(target)?.selected);
+  const hasAnySelectedNode = useStore(s => Array.from(s.nodeLookup.values()).some(n => n.selected));
+  const isConnectedToSelectedNode = isSourceSelected || isTargetSelected;
+
+  const DEBUG = false; // Temporary debug mode
   const NODE_RADIUS = 28; // 56px / 2 (w-14 h-14)
   
   const dx = targetX - sourceX;
@@ -50,17 +56,23 @@ export const RoadEdge = memo(function RoadEdge(props: EdgeProps<RoadEdgeType>) {
   if (traffic === 'medium') strokeColor = '#f59e0b'; // amber-500
   if (traffic === 'high')   strokeColor = '#ef4444'; // red-500
   if (isClosed)             strokeColor = '#ef4444';
+  
+  // Highlight overrides
+  if (isConnectedToSelectedNode) strokeColor = '#3b82f6'; // blue-500 when connected to selected node
   if (isHighlighted)        strokeColor = '#fb923c'; // orange – edge relaxation
   if (isFinalPath)          strokeColor = '#3b82f6'; // blue-500 – shortest path
   // dark mode path
-  if (isFinalPath)          strokeColor = 'var(--path, #38bdf8)';
+  if (isFinalPath || isConnectedToSelectedNode) strokeColor = 'var(--path, #38bdf8)';
 
-  const strokeWidth   = isFinalPath ? 7 : isHighlighted ? 5 : selected || hovered ? 5 : 4;
-  const glowFilter    = isFinalPath
+  const strokeWidth   = isFinalPath || isConnectedToSelectedNode ? 7 : isHighlighted ? 5 : selected || hovered ? 5 : 4;
+  const glowFilter    = isFinalPath || isConnectedToSelectedNode
     ? 'drop-shadow(0 0 6px rgba(56,189,248,0.9)) drop-shadow(0 0 12px rgba(56,189,248,0.5))'
     : isHighlighted
     ? 'drop-shadow(0 0 5px rgba(251,146,60,0.8))'
     : 'none';
+
+  // Opacity fading for unrelated roads when a node is selected
+  const edgeOpacity = hasAnySelectedNode && !isConnectedToSelectedNode ? 0.25 : 1;
 
   // road length (for particle animation offset)
   const roadLength = Math.hypot(targetX - sourceX, targetY - sourceY);
@@ -74,7 +86,7 @@ export const RoadEdge = memo(function RoadEdge(props: EdgeProps<RoadEdgeType>) {
       <g
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
-        style={{ cursor: 'pointer' }}
+        style={{ cursor: 'pointer', opacity: edgeOpacity, transition: 'opacity 0.3s' }}
       >
         {/* Wide invisible hit-target */}
         <path d={edgePath} stroke="transparent" strokeWidth={24} fill="none" />
