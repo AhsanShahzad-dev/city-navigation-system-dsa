@@ -17,7 +17,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.className} antialiased h-screen w-screen overflow-hidden`}>
+      <body className={`${inter.className} antialiased h-screen w-screen overflow-hidden`} suppressHydrationWarning>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"

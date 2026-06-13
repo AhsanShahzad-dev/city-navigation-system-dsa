@@ -1,91 +1,102 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { useGraphStore } from "@/store/useGraphStore";
-import { PieChart, Pie, Cell, Tooltip as RechartsTooltip, ResponsiveContainer, BarChart, Bar, XAxis, YAxis } from 'recharts';
+'use client';
+
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useGraphStore } from '@/store/useGraphStore';
+import {
+  PieChart, Pie, Cell, Tooltip as RechartsTooltip,
+  ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid,
+} from 'recharts';
+import { Network, Route, Ruler, Zap } from 'lucide-react';
 
 export function AnalyticsPanel() {
   const { nodes, edges } = useGraphStore();
 
-  const totalDist = edges.reduce((acc, edge) => acc + (edge.data?.distance || 0), 0);
-  const avgDist = edges.length > 0 ? (totalDist / edges.length).toFixed(1) : 0;
+  const totalDist = edges.reduce((s, e) => s + (e.data?.distance ?? 0), 0);
+  const avgDist = edges.length > 0 ? (totalDist / edges.length).toFixed(1) : '0';
+  const closedRoads = edges.filter(e => e.data?.isClosed).length;
 
   const trafficData = [
-    { name: 'Low', value: edges.filter(e => e.data?.traffic === 'low').length, color: '#22C55E' },
-    { name: 'Medium', value: edges.filter(e => e.data?.traffic === 'medium').length, color: '#F59E0B' },
-    { name: 'High', value: edges.filter(e => e.data?.traffic === 'high').length, color: '#EF4444' },
-    { name: 'Closed', value: edges.filter(e => e.data?.isClosed).length, color: '#000000' },
+    { name: 'Low',    value: edges.filter(e => e.data?.traffic === 'low'    && !e.data?.isClosed).length, color: '#22c55e' },
+    { name: 'Medium', value: edges.filter(e => e.data?.traffic === 'medium' && !e.data?.isClosed).length, color: '#f59e0b' },
+    { name: 'High',   value: edges.filter(e => e.data?.traffic === 'high'   && !e.data?.isClosed).length, color: '#ef4444' },
+    { name: 'Closed', value: closedRoads, color: '#64748b' },
   ].filter(d => d.value > 0);
 
-  // Calculate degrees for nodes
-  const nodeDegrees = nodes.map(n => {
-    const degree = edges.filter(e => e.source === n.id || e.target === n.id).length;
-    return { name: n.id, degree };
-  }).sort((a, b) => b.degree - a.degree).slice(0, 5); // top 5
+  const degreeData = nodes
+    .map(n => ({
+      name: n.id,
+      connections: edges.filter(e => e.source === n.id || e.target === n.id).length,
+    }))
+    .sort((a, b) => b.connections - a.connections)
+    .slice(0, 6);
+
+  const stats = [
+    { icon: Network, label: 'Intersections', value: nodes.length, color: 'text-blue-500', bg: 'bg-blue-500/10 border-blue-500/20' },
+    { icon: Route,   label: 'Roads',         value: edges.length, color: 'text-emerald-500', bg: 'bg-emerald-500/10 border-emerald-500/20' },
+    { icon: Ruler,   label: 'Avg Length',    value: `${avgDist}m`, color: 'text-amber-500', bg: 'bg-amber-500/10 border-amber-500/20' },
+    { icon: Zap,     label: 'Closed Roads',  value: closedRoads, color: 'text-red-500', bg: 'bg-red-500/10 border-red-500/20' },
+  ];
 
   return (
-    <div className="space-y-4 pb-10">
-      <Card>
-        <CardHeader>
-          <CardTitle>City Analytics</CardTitle>
-          <CardDescription>Network statistics and metrics.</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="p-3 bg-muted rounded-md text-center">
-              <div className="text-2xl font-bold">{nodes.length}</div>
-              <div className="text-xs text-muted-foreground uppercase">Nodes</div>
-            </div>
-            <div className="p-3 bg-muted rounded-md text-center">
-              <div className="text-2xl font-bold">{edges.length}</div>
-              <div className="text-xs text-muted-foreground uppercase">Edges</div>
-            </div>
-            <div className="p-3 bg-muted rounded-md text-center col-span-2">
-              <div className="text-2xl font-bold">{avgDist}m</div>
-              <div className="text-xs text-muted-foreground uppercase">Average Road Length</div>
-            </div>
+    <div className="space-y-3 pb-10">
+      {/* Stat grid */}
+      <div className="grid grid-cols-2 gap-2">
+        {stats.map(({ icon: Icon, label, value, color, bg }) => (
+          <div key={label} className={`p-3 rounded-xl border ${bg} flex flex-col`}>
+            <Icon className={`w-4 h-4 mb-2 ${color}`} />
+            <span className="text-xl font-black text-foreground">{value}</span>
+            <span className="text-[10px] text-muted-foreground uppercase tracking-wider">{label}</span>
           </div>
-        </CardContent>
-      </Card>
+        ))}
+      </div>
 
-      {edges.length > 0 && (
+      {/* Traffic pie */}
+      {trafficData.length > 0 && (
         <Card>
-          <CardHeader>
+          <CardHeader className="pb-2">
             <CardTitle className="text-sm">Traffic Distribution</CardTitle>
           </CardHeader>
-          <CardContent className="h-48">
+          <CardContent className="h-44">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
-                <Pie
-                  data={trafficData}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={40}
-                  outerRadius={70}
-                  paddingAngle={5}
-                  dataKey="value"
-                >
-                  {trafficData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
+                <Pie data={trafficData} cx="50%" cy="50%" innerRadius={36} outerRadius={62} paddingAngle={4} dataKey="value">
+                  {trafficData.map((entry, i) => (
+                    <Cell key={i} fill={entry.color} stroke="none" />
                   ))}
                 </Pie>
-                <RechartsTooltip />
+                <RechartsTooltip
+                  contentStyle={{ background: 'rgba(15,23,42,0.9)', border: 'none', borderRadius: 8, color: '#fff', fontSize: 12 }}
+                />
               </PieChart>
             </ResponsiveContainer>
+            <div className="flex flex-wrap justify-center gap-x-3 gap-y-1 -mt-2">
+              {trafficData.map(d => (
+                <div key={d.name} className="flex items-center gap-1 text-[10px] text-muted-foreground">
+                  <div className="w-2 h-2 rounded-full" style={{ background: d.color }} />
+                  {d.name} ({d.value})
+                </div>
+              ))}
+            </div>
           </CardContent>
         </Card>
       )}
 
-      {nodes.length > 0 && (
+      {/* Degree bar chart */}
+      {degreeData.length > 0 && (
         <Card>
-          <CardHeader>
-            <CardTitle className="text-sm">Most Connected Intersections</CardTitle>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm">Most Connected</CardTitle>
           </CardHeader>
-          <CardContent className="h-48">
+          <CardContent className="h-40">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={nodeDegrees} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                <XAxis dataKey="name" tick={{ fontSize: 12 }} />
-                <YAxis tick={{ fontSize: 12 }} allowDecimals={false} />
-                <RechartsTooltip cursor={{ fill: 'rgba(0,0,0,0.1)' }} />
-                <Bar dataKey="degree" fill="var(--primary)" radius={[4, 4, 0, 0]} />
+              <BarChart data={degreeData} margin={{ top: 0, right: 4, left: -28, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(100,116,139,0.15)" />
+                <XAxis dataKey="name" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fontSize: 11 }} allowDecimals={false} axisLine={false} tickLine={false} />
+                <RechartsTooltip
+                  contentStyle={{ background: 'rgba(15,23,42,0.9)', border: 'none', borderRadius: 8, color: '#fff', fontSize: 12 }}
+                />
+                <Bar dataKey="connections" fill="#3b82f6" radius={[4, 4, 0, 0]} maxBarSize={30} />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
