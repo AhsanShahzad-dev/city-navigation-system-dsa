@@ -13,7 +13,27 @@ export const RoadEdge = memo(function RoadEdge(props: EdgeProps<RoadEdgeType>) {
   const [hovered, setHovered] = useState(false);
   const clipId = useId();
 
-  const [edgePath, labelX, labelY] = getStraightPath({ sourceX, sourceY, targetX, targetY });
+  const DEBUG = true; // Temporary debug mode
+  const NODE_RADIUS = 28; // 56px / 2 (w-14 h-14)
+  
+  const dx = targetX - sourceX;
+  const dy = targetY - sourceY;
+  const angleRad = Math.atan2(dy, dx);
+  
+  const offsetX = NODE_RADIUS * Math.cos(angleRad);
+  const offsetY = NODE_RADIUS * Math.sin(angleRad);
+
+  const startX = sourceX + offsetX;
+  const startY = sourceY + offsetY;
+  const endX = targetX - offsetX;
+  const endY = targetY - offsetY;
+
+  const [edgePath, labelX, labelY] = getStraightPath({ 
+    sourceX: startX, 
+    sourceY: startY, 
+    targetX: endX, 
+    targetY: endY 
+  });
 
   const currentStep = steps[currentStepIndex];
   const isHighlighted = currentStep?.highlightedEdges.includes(id);
@@ -118,6 +138,14 @@ export const RoadEdge = memo(function RoadEdge(props: EdgeProps<RoadEdgeType>) {
               />
             ))}
           </g>
+        )}
+
+        {/* Debug Dots */}
+        {DEBUG && (
+          <>
+            <circle cx={startX} cy={startY} r={4} fill="blue" stroke="white" strokeWidth={1.5} />
+            <circle cx={endX} cy={endY} r={4} fill="yellow" stroke="black" strokeWidth={1.5} />
+          </>
         )}
       </g>
 

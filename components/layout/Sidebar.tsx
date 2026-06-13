@@ -8,12 +8,12 @@ import { motion } from 'framer-motion';
 import type { AppMode } from '@/store/useGraphStore';
 
 const NAV_ITEMS = [
-  { id: 'dashboard'  as AppMode, label: 'Dashboard',      icon: LayoutDashboard, color: 'from-slate-500  to-slate-600' },
-  { id: 'navigation' as AppMode, label: 'Navigation',     icon: Navigation2,     color: 'from-blue-500   to-indigo-600' },
-  { id: 'build'      as AppMode, label: 'Graph Builder',  icon: Network,         color: 'from-emerald-500 to-teal-600' },
-  { id: 'algorithms' as AppMode, label: 'Algorithms',     icon: Cpu,             color: 'from-purple-500 to-violet-600' },
-  { id: 'traffic'    as AppMode, label: 'Traffic Control',icon: Activity,        color: 'from-amber-500  to-orange-600' },
-  { id: 'analytics'  as AppMode, label: 'Analytics',      icon: BarChart3,       color: 'from-pink-500   to-rose-600' },
+  { id: 'dashboard' as AppMode, label: 'Dashboard', icon: LayoutDashboard, color: 'from-slate-500  to-slate-600' },
+  { id: 'navigation' as AppMode, label: 'Navigation', icon: Navigation2, color: 'from-blue-500   to-indigo-600' },
+  { id: 'build' as AppMode, label: 'Graph Builder', icon: Network, color: 'from-emerald-500 to-teal-600' },
+  { id: 'algorithms' as AppMode, label: 'Algorithms', icon: Cpu, color: 'from-purple-500 to-violet-600' },
+  { id: 'traffic' as AppMode, label: 'Traffic Control', icon: Activity, color: 'from-amber-500  to-orange-600' },
+  { id: 'analytics' as AppMode, label: 'Analytics', icon: BarChart3, color: 'from-pink-500   to-rose-600' },
 ] as const;
 
 export function Sidebar() {
@@ -93,7 +93,7 @@ export function Sidebar() {
 
       {/* ── Footer ── */}
       <div className="px-4 py-3 border-t border-border/40 text-[10px] text-muted-foreground/60 text-center">
-        DSA Final Project · 2024
+        Smart City Navigation System
       </div>
     </div>
   );

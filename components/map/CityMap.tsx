@@ -46,92 +46,90 @@ function AlgorithmHUD() {
   };
 
   return (
-    <Panel position="top-right" className="m-4">
-      <motion.div
-        initial={{ opacity: 0, x: 40 }}
-        animate={{ opacity: 1, x: 0 }}
-        className="w-72 rounded-2xl overflow-hidden shadow-2xl border border-white/10"
-      >
-        {/* Header */}
-        <div className={`bg-gradient-to-r ${algoColors[activeAlgorithm] ?? 'from-slate-600 to-slate-700'} px-4 py-3 flex items-center justify-between`}>
-          <span className="text-white font-bold text-sm">{label[activeAlgorithm] ?? activeAlgorithm} Visualizer</span>
-          <span className="text-white/70 text-xs">Step {currentStepIndex + 1} / {steps.length}</span>
+    <motion.div
+      initial={{ opacity: 0, x: 40 }}
+      animate={{ opacity: 1, x: 0 }}
+      className="w-72 rounded-2xl overflow-hidden shadow-2xl border border-white/10"
+    >
+      {/* Header */}
+      <div className={`bg-gradient-to-r ${algoColors[activeAlgorithm] ?? 'from-slate-600 to-slate-700'} px-4 py-3 flex items-center justify-between`}>
+        <span className="text-white font-bold text-sm">{label[activeAlgorithm] ?? activeAlgorithm} Visualizer</span>
+        <span className="text-white/70 text-xs">Step {currentStepIndex + 1} / {steps.length}</span>
+      </div>
+
+      {/* Description */}
+      <div className="bg-slate-900/90 backdrop-blur-md px-4 py-3 border-b border-white/10">
+        <p className="text-white/90 text-xs leading-relaxed">{currentStep.description}</p>
+      </div>
+
+      {/* State rows */}
+      <div className="bg-slate-800/90 backdrop-blur-md px-4 py-3 space-y-3">
+        {/* Current node */}
+        <div className="flex items-center gap-2">
+          <div className="w-2 h-2 rounded-full bg-yellow-400 shrink-0" />
+          <span className="text-slate-400 text-xs w-20 shrink-0">Current</span>
+          <span className="text-yellow-300 font-mono font-bold text-xs">
+            {currentStep.currentNode ?? '–'}
+          </span>
         </div>
 
-        {/* Description */}
-        <div className="bg-slate-900/90 backdrop-blur-md px-4 py-3 border-b border-white/10">
-          <p className="text-white/90 text-xs leading-relaxed">{currentStep.description}</p>
-        </div>
-
-        {/* State rows */}
-        <div className="bg-slate-800/90 backdrop-blur-md px-4 py-3 space-y-3">
-          {/* Current node */}
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-yellow-400 shrink-0" />
-            <span className="text-slate-400 text-xs w-20 shrink-0">Current</span>
-            <span className="text-yellow-300 font-mono font-bold text-xs">
-              {currentStep.currentNode ?? '–'}
-            </span>
-          </div>
-
-          {/* Queue / Stack */}
-          <div className="flex items-start gap-2">
-            <div className="w-2 h-2 rounded-full bg-orange-400 shrink-0 mt-0.5" />
-            <span className="text-slate-400 text-xs w-20 shrink-0">
-              {activeAlgorithm === 'dfs' ? 'Stack' : 'Queue'}
-            </span>
-            <div className="flex flex-wrap gap-1">
-              {currentStep.queueOrStack.length > 0
-                ? currentStep.queueOrStack.map((q, i) => (
-                    <span key={i} className="px-1.5 py-0.5 bg-orange-500/20 text-orange-300 text-[10px] font-mono rounded border border-orange-500/30">
-                      {q}
-                    </span>
-                  ))
-                : <span className="text-slate-500 text-xs">empty</span>
-              }
-            </div>
-          </div>
-
-          {/* Visited */}
-          <div className="flex items-start gap-2">
-            <div className="w-2 h-2 rounded-full bg-blue-400 shrink-0 mt-0.5" />
-            <span className="text-slate-400 text-xs w-20 shrink-0">Visited</span>
-            <div className="flex flex-wrap gap-1">
-              {currentStep.visitedNodes.length > 0
-                ? currentStep.visitedNodes.map((n, i) => (
-                    <span key={i} className="px-1.5 py-0.5 bg-blue-500/20 text-blue-300 text-[10px] font-mono rounded border border-blue-500/30">
-                      {n}
-                    </span>
-                  ))
-                : <span className="text-slate-500 text-xs">none</span>
-              }
-            </div>
-          </div>
-
-          {/* Dijkstra distances mini-table */}
-          {activeAlgorithm === 'dijkstra' && Object.keys(currentStep.distances).length > 0 && (
-            <div className="flex items-start gap-2">
-              <div className="w-2 h-2 rounded-full bg-emerald-400 shrink-0 mt-0.5" />
-              <span className="text-slate-400 text-xs w-20 shrink-0">Distances</span>
-              <div className="flex flex-wrap gap-1">
-                {Object.entries(currentStep.distances).map(([node, dist]) => (
-                  <span
-                    key={node}
-                    className={`px-1.5 py-0.5 text-[10px] font-mono rounded border ${
-                      dist === Infinity
-                        ? 'bg-slate-700/50 text-slate-500 border-slate-600/30'
-                        : 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
-                    }`}
-                  >
-                    {node}:{dist === Infinity ? '∞' : dist}
+        {/* Queue / Stack */}
+        <div className="flex items-start gap-2">
+          <div className="w-2 h-2 rounded-full bg-orange-400 shrink-0 mt-0.5" />
+          <span className="text-slate-400 text-xs w-20 shrink-0">
+            {activeAlgorithm === 'dfs' ? 'Stack' : 'Queue'}
+          </span>
+          <div className="flex flex-wrap gap-1">
+            {currentStep.queueOrStack.length > 0
+              ? currentStep.queueOrStack.map((q, i) => (
+                  <span key={i} className="px-1.5 py-0.5 bg-orange-500/20 text-orange-300 text-[10px] font-mono rounded border border-orange-500/30">
+                    {q}
                   </span>
-                ))}
-              </div>
-            </div>
-          )}
+                ))
+              : <span className="text-slate-500 text-xs">empty</span>
+            }
+          </div>
         </div>
-      </motion.div>
-    </Panel>
+
+        {/* Visited */}
+        <div className="flex items-start gap-2">
+          <div className="w-2 h-2 rounded-full bg-blue-400 shrink-0 mt-0.5" />
+          <span className="text-slate-400 text-xs w-20 shrink-0">Visited</span>
+          <div className="flex flex-wrap gap-1">
+            {currentStep.visitedNodes.length > 0
+              ? currentStep.visitedNodes.map((n, i) => (
+                  <span key={i} className="px-1.5 py-0.5 bg-blue-500/20 text-blue-300 text-[10px] font-mono rounded border border-blue-500/30">
+                    {n}
+                  </span>
+                ))
+              : <span className="text-slate-500 text-xs">none</span>
+            }
+          </div>
+        </div>
+
+        {/* Dijkstra distances mini-table */}
+        {activeAlgorithm === 'dijkstra' && Object.keys(currentStep.distances).length > 0 && (
+          <div className="flex items-start gap-2">
+            <div className="w-2 h-2 rounded-full bg-emerald-400 shrink-0 mt-0.5" />
+            <span className="text-slate-400 text-xs w-20 shrink-0">Distances</span>
+            <div className="flex flex-wrap gap-1">
+              {Object.entries(currentStep.distances).map(([node, dist]) => (
+                <span
+                  key={node}
+                  className={`px-1.5 py-0.5 text-[10px] font-mono rounded border ${
+                    dist === Infinity
+                      ? 'bg-slate-700/50 text-slate-500 border-slate-600/30'
+                      : 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
+                  }`}
+                >
+                  {node}:{dist === Infinity ? '∞' : dist}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </motion.div>
   );
 }
 
@@ -189,28 +187,26 @@ function MapLegend() {
   if (presentationMode) return null;
 
   return (
-    <Panel position="bottom-left" className="mb-4 ml-4">
-      <div className="bg-white/90 dark:bg-slate-900/90 backdrop-blur-md rounded-xl p-3 shadow-lg border border-slate-200 dark:border-slate-700 text-xs space-y-1.5">
-        <p className="font-bold text-slate-700 dark:text-slate-200 mb-2 uppercase tracking-wider text-[10px]">Legend</p>
-        {[
-          { color: 'bg-green-500',  label: 'Low Traffic' },
-          { color: 'bg-amber-500',  label: 'Medium Traffic' },
-          { color: 'bg-red-500',    label: 'High Traffic' },
-          { color: 'bg-blue-500',   label: 'Shortest Path' },
-          { color: 'bg-orange-400', label: 'Edge Relaxation' },
-          { color: 'bg-yellow-400', label: 'Current Node' },
-        ].map(({ color, label }) => (
-          <div key={label} className="flex items-center gap-2">
-            <div className={`w-3 h-3 rounded-full ${color} shadow-sm`} />
-            <span className="text-slate-600 dark:text-slate-400">{label}</span>
-          </div>
-        ))}
-        <div className="flex items-center gap-2 pt-0.5">
-          <div className="w-6 h-0 border-t-2 border-dashed border-red-500" />
-          <span className="text-slate-600 dark:text-slate-400">Closed Road</span>
+    <div className="bg-white/90 dark:bg-slate-900/90 backdrop-blur-md rounded-xl p-3 shadow-lg border border-slate-200 dark:border-slate-700 text-xs space-y-1.5 w-48">
+      <p className="font-bold text-slate-700 dark:text-slate-200 mb-2 uppercase tracking-wider text-[10px]">Legend</p>
+      {[
+        { color: 'bg-green-500',  label: 'Low Traffic' },
+        { color: 'bg-amber-500',  label: 'Medium Traffic' },
+        { color: 'bg-red-500',    label: 'High Traffic' },
+        { color: 'bg-blue-500',   label: 'Shortest Path' },
+        { color: 'bg-orange-400', label: 'Edge Relaxation' },
+        { color: 'bg-yellow-400', label: 'Current Node' },
+      ].map(({ color, label }) => (
+        <div key={label} className="flex items-center gap-2">
+          <div className={`w-3 h-3 rounded-full ${color} shadow-sm`} />
+          <span className="text-slate-600 dark:text-slate-400">{label}</span>
         </div>
+      ))}
+      <div className="flex items-center gap-2 pt-0.5">
+        <div className="w-6 h-0 border-t-2 border-dashed border-red-500" />
+        <span className="text-slate-600 dark:text-slate-400">Closed Road</span>
       </div>
-    </Panel>
+    </div>
   );
 }
 
@@ -279,14 +275,18 @@ function Flow() {
         />
       )}
 
-      {/* Algorithm HUD (map-embedded) */}
-      <AlgorithmHUD />
+      {/* Right side overlays (HUD + Legend) centered vertically */}
+      <div className="absolute right-4 top-1/2 -translate-y-1/2 flex flex-col items-end gap-3 pointer-events-none z-40">
+        <div className="pointer-events-auto">
+          <AlgorithmHUD />
+        </div>
+        <div className="pointer-events-auto">
+          <MapLegend />
+        </div>
+      </div>
 
-      {/* Custom controls */}
+      {/* Custom zoom controls */}
       <MapControls />
-
-      {/* Legend */}
-      <MapLegend />
     </ReactFlow>
   );
 }

@@ -57,9 +57,12 @@ export const IntersectionNode = memo(function IntersectionNode({ id, data, selec
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
-      {/* Invisible handles covering the whole node for easy edge connections */}
-      <Handle type="target" position={Position.Top}    style={{ opacity: 0, width: '100%', height: '100%', position: 'absolute', top: 0, left: 0, border: 'none', borderRadius: 0 }} />
-      <Handle type="source" position={Position.Bottom} style={{ opacity: 0, width: '100%', height: '100%', position: 'absolute', top: 0, left: 0, border: 'none', borderRadius: 0 }} />
+      {/* Center Handles for accurate edge routing */}
+      <Handle type="target" position={Position.Top}    style={{ position: 'absolute', top: '50%', left: '50%', width: 1, height: 1, visibility: 'hidden' }} />
+      <Handle type="source" position={Position.Bottom} style={{ position: 'absolute', top: '50%', left: '50%', width: 1, height: 1, visibility: 'hidden' }} />
+
+      {/* Debug center dot (red) */}
+      {true && <div className="absolute top-1/2 left-1/2 w-2 h-2 bg-red-500 rounded-full -translate-x-1/2 -translate-y-1/2 z-50 pointer-events-none shadow-[0_0_0_2px_white]" />}
 
       {/* Dijkstra distance badge (above node) */}
       <AnimatePresence>
