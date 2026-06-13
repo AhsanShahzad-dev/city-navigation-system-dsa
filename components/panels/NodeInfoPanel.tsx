@@ -39,7 +39,7 @@ export function NodeInfoPanel() {
           {/* Header */}
           <div className="flex justify-between items-start">
             <div>
-              <h3 className="text-xl font-black text-slate-800 dark:text-slate-100">{selectedNode.data?.label || selectedNode.id}</h3>
+              <h3 className="text-xl font-black text-slate-800 dark:text-slate-100">{String(selectedNode.data?.label || selectedNode.id)}</h3>
               <p className="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">Intersection {selectedNode.id}</p>
             </div>
             <div className="px-2 py-1 bg-slate-100 dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 text-[10px] font-mono text-slate-500">
