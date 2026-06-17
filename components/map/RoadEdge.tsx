@@ -131,7 +131,7 @@ export const RoadEdge = memo(function RoadEdge(props: EdgeProps<RoadEdgeType>) {
         {!isClosed && (
           <g style={{ pointerEvents: 'none' }}>
             {[0, 0.33, 0.66].map((offset, i) => (
-              <motion.circle
+              <circle
                 key={i}
                 r={traffic === 'high' ? 3.5 : 2.5}
                 fill={
@@ -139,15 +139,14 @@ export const RoadEdge = memo(function RoadEdge(props: EdgeProps<RoadEdgeType>) {
                   traffic === 'medium' ? 'rgba(245,158,11,0.85)' :
                   'rgba(34,197,94,0.85)'
                 }
-                style={{ offsetPath: `path("${edgePath}")`, offsetDistance: '0%' }}
-                animate={{ offsetDistance: ['0%', '100%'] }}
-                transition={{
-                  duration: particleSpeed,
-                  repeat: Infinity,
-                  ease: 'linear',
-                  delay: offset * particleSpeed,
-                }}
-              />
+              >
+                <animateMotion
+                  dur={`${particleSpeed}s`}
+                  repeatCount="indefinite"
+                  path={edgePath}
+                  begin={`-${offset * particleSpeed}s`}
+                />
+              </circle>
             ))}
           </g>
         )}
